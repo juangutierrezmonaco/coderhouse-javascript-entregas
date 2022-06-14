@@ -43,6 +43,8 @@ function validacionOpciones() {
                 alert("Si se ejecuta esta opción es porque hubo un error de código porque su opción ya fue validada!");
             break;
         }
-    } while (prompt("Si desea salir presione ESC, sino presione cualquier   otra tecla para repetir el algoritmo."));
+    } while (prompt("Si desea salir presione ESC, sino presione cualquier   otra tecla para repetir el algoritmo.") != null);
+
+    alert("Gracias por probar el script!");
 
 }
