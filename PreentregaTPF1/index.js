@@ -54,11 +54,11 @@ function verCosplaysOrdenados () {
     let menu = new Menu(opciones);
     let opcion = menu.ejecutarMenu();
     
-    let cosplaysOrdenados;
+    let cosplaysOrdenados = cosplays.map(x => x);   // Hago una copia para no modificar el original
 
     switch (opcion) {
         case 1:
-            cosplaysOrdenados = cosplays.sort((a, b) => {
+            cosplaysOrdenados.sort((a, b) => {
                 if (a.anime > b.anime) {
                     return 1;
                 } else if (a.anime < b.anime) {
@@ -69,7 +69,7 @@ function verCosplaysOrdenados () {
             });
             break;
         case 2:
-            cosplaysOrdenados = cosplays.sort((a, b) => {
+            cosplaysOrdenados.sort((a, b) => {
                 if (a.anime > b.anime) {
                     return -1;
                 } else if (a.anime < b.anime) {
@@ -80,7 +80,7 @@ function verCosplaysOrdenados () {
             });
             break;
         case 3:
-            cosplaysOrdenados = cosplays.sort((a, b) => {
+            cosplaysOrdenados.sort((a, b) => {
                 if (a.personaje > b.personaje) {
                     return 1;
                 } else if (a.personaje < b.personaje) {
@@ -91,7 +91,7 @@ function verCosplaysOrdenados () {
             });
             break;
         case 4:
-            cosplaysOrdenados = cosplays.sort((a, b) => {
+            cosplaysOrdenados.sort((a, b) => {
                 if (a.personaje > b.personaje) {
                     return -1;
                 } else if (a.personaje < b.personaje) {
@@ -102,13 +102,13 @@ function verCosplaysOrdenados () {
             });
             break;
         case 5:
-            cosplaysOrdenados = cosplays.sort((a, b) => a.precio - b.precio);
+            cosplaysOrdenados.sort((a, b) => a.precio - b.precio);
             break;
         case 6:
-            cosplaysOrdenados = cosplays.sort((a, b) => b.precio - a.precio);
+            cosplaysOrdenados.sort((a, b) => b.precio - a.precio);
             break;
         case 7:
-            cosplaysOrdenados = cosplays.sort((a, b) => b.popularidad - a.popularidad); // No hay default porque la opción ya está validada
+            cosplaysOrdenados.sort((a, b) => b.popularidad - a.popularidad); // No hay default porque la opción ya está validada
     }
 
     alert(mostrarCosplays(cosplaysOrdenados));
@@ -206,7 +206,7 @@ function eliminarCosplayDelCarrito () {
     }
 }
 
-function verCarrito () {    // AGREGAR CODIGOS DESCUENTO
+function verCarrito () {
     if (carrito.cosplays.length == 0) {
         alert("Su carrito está vacío.");
         return;
