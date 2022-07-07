@@ -12,9 +12,9 @@ class Cosplay {
     }
 
     calcularPrecio () {
-        return (this.oferta == 0) ? this.precio : this.calcularPrecioConDescuento();
+        return (this.oferta == 0) ? this.precio : calcularPrecioConDescuento(this.precio, this.oferta);
     }
-
+    
     clonarCosplay () {
         let cosplayCopia = new Cosplay(this.personaje, this.anime, this.tipo, this.precio, this.oferta, this.popularidad, this.stock);
         

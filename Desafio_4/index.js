@@ -16,28 +16,44 @@ const carrito = new Carrito();
 
 // Creación de galería y muestra
 let galeria = document.querySelector(".main--index .main__seccion .row");
+cargarGaleria(cosplays);
 
-for (const cosplay of cosplays) {
-    let cosplayHtml = document.createElement("article");
-    cosplayHtml.classList.add("col-8", "col-sm-4", "col-md-3", "cosplay");
+function cargarGaleria (arrCosplays) {
+    for (const cosplay of arrCosplays) {
+        let cosplayHtml = document.createElement("article");
+        cosplayHtml.classList.add("col-8", "col-sm-4", "col-md-3", "cosplay");
     
-    cosplayHtml.innerHTML = 
-        `<img src=${cosplay.imagen} class="cosplay__imagen mb-2 img-fluid"  alt="${cosplay.anime} - ${cosplay.personaje} - ${cosplay.tipo}">
+        let precio = cosplay.oferta == 0 ? `<h4>$ ${cosplay.precio}</h4>` : `<h4>(<del>$ ${cosplay.precio}</del>) $ ${cosplay.calcularPrecio()}</h4>`
+    
+        cosplayHtml.innerHTML = 
+            `<img src=${cosplay.imagen} class="cosplay__imagen mb-2 img-fluid"  alt="${cosplay.anime} - ${cosplay.personaje} - ${cosplay.tipo}">
+    
+            <div class="cosplay__footer">
+                <h3>${cosplay.tipo.toUpperCase()} ${cosplay.personaje.toUpperCase()}</h3>
+                <h5>${cosplay.anime}</h5>
+                ${precio}
+            </div>
+    
+            <div class="cosplay__carrito">  
+                <!-- Lo dejo armado con una clase para agregar la funcionalidad cuando se agrega algo al carrito en un futuro -->
+                <a href="">
+                    <i class="fa-solid fa-cart-plus"></i>
+                </a>
+            </div>`;
+    
+        galeria.append(cosplayHtml);
+    }
+}
 
-        <div class="cosplay__footer">
-            <h3>${cosplay.tipo.toUpperCase()} ${cosplay.personaje.toUpperCase()}</h3>
-            <h5>${cosplay.anime}</h5>
-            <h4>$ ${cosplay.precio}</h4>
-        </div>
+// Modificación de galería
+function modificarGaleria (cosplaysModificados, mensaje = "") {
+    galeria.innerHTML = ""; // Borro lo que ya estaba
 
-        <div class="cosplay__carrito">  
-            <!-- Lo dejo armado con una clase para agregar la funcionalidad cuando se agrega algo al carrito en un futuro -->
-            <a href="">
-                <i class="fa-solid fa-cart-plus"></i>
-            </a>
-        </div>`;
+    let titulo = document.createElement("h2");
+    titulo.innerHTML = `<h2>${mensaje}</h2>`;
+    galeria.append(titulo);
 
-    galeria.append(cosplayHtml);
+    cargarGaleria(cosplaysModificados);
 }
 
 // Aplicación de filtros a la galería
@@ -93,10 +109,10 @@ opcionesOrden.onchange = () => {
             });
             break;
         case "menor-precio":
-            cosplaysOrdenados.sort((a, b) => a.precio - b.precio);
+            cosplaysOrdenados.sort((a, b) => a.calcularPrecio() - b.calcularPrecio());
             break;
         case "mayor-precio":
-            cosplaysOrdenados.sort((a, b) => b.precio - a.precio);
+            cosplaysOrdenados.sort((a, b) => b.calcularPrecio() - a.calcularPrecio());
             break;
         case "pred":
             cosplaysOrdenados.sort((a, b) => b.popularidad - a.popularidad); // No hay default porque la opción ya está validada
@@ -115,38 +131,6 @@ opcionesFiltro.onchange = () => {
             cosplaysFiltrados = cosplays.filter(c => c.stock > 0); // No hay default porque la opción ya está validada
     }
     modificarGaleria(cosplaysFiltrados);
-}
-
-// Modificación de galería
-function modificarGaleria (cosplaysModificados, mensaje = "") {
-    galeria.innerHTML = ""; // Borro lo que ya estaba
-
-    let titulo = document.createElement("h2");
-    titulo.innerHTML = `<h2>${mensaje}</h2>`;
-    galeria.append(titulo);
-
-    for (const cosplay of cosplaysModificados) {
-        let cosplayHtml = document.createElement("article");
-        cosplayHtml.classList.add("col-8", "col-sm-4", "col-md-3", "cosplay");
-        
-        cosplayHtml.innerHTML = 
-            `<img src=${cosplay.imagen} class="cosplay__imagen mb-2 img-fluid"  alt="${cosplay.anime} - ${cosplay.personaje} - ${cosplay.tipo}">
-
-            <div class="cosplay__footer">
-                <h3>${cosplay.tipo.toUpperCase()} ${cosplay.personaje.toUpperCase()}</h3>
-                <h5>${cosplay.anime}</h5>
-                <h4>$ ${cosplay.precio}</h4>
-            </div>
-
-            <div class="cosplay__carrito">  
-                <!-- Lo dejo armado con una clase para agregar la funcionalidad cuando se agrega algo al carrito en un futuro -->
-                <a href="">
-                    <i class="fa-solid fa-cart-plus"></i>
-                </a>
-            </div>`;
-
-        galeria.append(cosplayHtml);
-    }
 }
 
 // Menú con alerts, próximamente se migrará todo al DOM
@@ -233,10 +217,10 @@ function verCosplaysOrdenados () {
             });
             break;
         case 5:
-            cosplaysOrdenados.sort((a, b) => a.precio - b.precio);
+            cosplaysOrdenados.sort((a, b) => a.calcularPrecio() - b.calcularPrecio());
             break;
         case 6:
-            cosplaysOrdenados.sort((a, b) => b.precio - a.precio);
+            cosplaysOrdenados.sort((a, b) => b.calcularPrecio() - a.calcularPrecio());
             break;
         case 7:
             cosplaysOrdenados.sort((a, b) => b.popularidad - a.popularidad); // No hay default porque la opción ya está validada
