@@ -14,35 +14,164 @@ codigosDescuento.set("JUAN50", 50);
 
 const carrito = new Carrito();
 
-function main () { 
+// Creación de galería y muestra
+let galeria = document.querySelector(".main--index .main__seccion .row");
 
-    alert("Bienvenido al ORA ORA COSTUME!");
+for (const cosplay of cosplays) {
+    let cosplayHtml = document.createElement("article");
+    cosplayHtml.classList.add("col-8", "col-sm-4", "col-md-3", "cosplay");
+    
+    cosplayHtml.innerHTML = 
+        `<img src=${cosplay.imagen} class="cosplay__imagen mb-2 img-fluid"  alt="${cosplay.anime} - ${cosplay.personaje} - ${cosplay.tipo}">
 
-    let exit = false;
-    do {
-        let opciones = ["Ver los cosplays ordenados", 
-                    "Aplicar algún filtro a los cosplays y verlos",
-                    "Buscar un cosplay",
-                    "Agregar un cosplay al carrito",
-                    "Eliminar un cosplay del carrito",
-                    "Ver carrito",
-                    "Registrarse", 
-                    "Solicitar más información",
-                    "Salir"];
+        <div class="cosplay__footer">
+            <h3>${cosplay.tipo.toUpperCase()} ${cosplay.personaje.toUpperCase()}</h3>
+            <h5>${cosplay.anime}</h5>
+            <h4>$ ${cosplay.precio}</h4>
+        </div>
 
-        let funciones =     [verCosplaysOrdenados, 
-                            filtrarCosplays,
-                            buscarCosplays,
-                            agregarCosplayAlCarrito,
-                            eliminarCosplayDelCarrito,
-                            verCarrito,
-                            registro,
-                            masInfo,
-                            salir];
+        <div class="cosplay__carrito">  
+            <!-- Lo dejo armado con una clase para agregar la funcionalidad cuando se agrega algo al carrito en un futuro -->
+            <a href="">
+                <i class="fa-solid fa-cart-plus"></i>
+            </a>
+        </div>`;
 
-        let menu = new Menu(opciones, funciones);
-        exit = menu.ejecutarMenu();
-    } while (!exit);
+    galeria.append(cosplayHtml);
+}
+
+// Aplicación de filtros a la galería
+let opcionesOrden = document.querySelector("#orden");
+let opcionesFiltro = document.querySelector("#filtro");
+
+opcionesOrden.onchange = () => {
+    let cosplaysOrdenados = cosplays.map(x => x);   // Hago una copia para no modificar el original
+
+    switch (opcionesOrden.value) {
+        case "nombre-asc-anime":
+            cosplaysOrdenados.sort((a, b) => {
+                if (a.anime > b.anime) {
+                    return 1;
+                } else if (a.anime < b.anime) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            });
+            break;
+        case "nombre-des-anime":
+            cosplaysOrdenados.sort((a, b) => {
+                if (a.anime > b.anime) {
+                    return -1;
+                } else if (a.anime < b.anime) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            });
+            break;
+        case "nombre-asc-personaje":
+            cosplaysOrdenados.sort((a, b) => {
+                if (a.personaje > b.personaje) {
+                    return 1;
+                } else if (a.personaje < b.personaje) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            });
+            break;
+        case "nombre-des-personaje":
+            cosplaysOrdenados.sort((a, b) => {
+                if (a.personaje > b.personaje) {
+                    return -1;
+                } else if (a.personaje < b.personaje) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            });
+            break;
+        case "menor-precio":
+            cosplaysOrdenados.sort((a, b) => a.precio - b.precio);
+            break;
+        case "mayor-precio":
+            cosplaysOrdenados.sort((a, b) => b.precio - a.precio);
+            break;
+        case "pred":
+            cosplaysOrdenados.sort((a, b) => b.popularidad - a.popularidad); // No hay default porque la opción ya está validada
+    }
+
+    modificarGaleria(cosplaysOrdenados);
+}
+
+opcionesFiltro.onchange = () => {
+    let cosplaysFiltrados = cosplays.map(x => x);
+    switch (opcionesFiltro.value) {
+        case "ofertas":
+            cosplaysFiltrados = cosplays.filter(c => c.oferta > 0);
+            break;
+        case "stock":
+            cosplaysFiltrados = cosplays.filter(c => c.stock > 0); // No hay default porque la opción ya está validada
+    }
+    modificarGaleria(cosplaysFiltrados);
+}
+
+// Modificación de galería
+function modificarGaleria (cosplaysModificados, mensaje = "") {
+    galeria.innerHTML = ""; // Borro lo que ya estaba
+
+    let titulo = document.createElement("h2");
+    titulo.innerHTML = `<h2>${mensaje}</h2>`;
+    galeria.append(titulo);
+
+    for (const cosplay of cosplaysModificados) {
+        let cosplayHtml = document.createElement("article");
+        cosplayHtml.classList.add("col-8", "col-sm-4", "col-md-3", "cosplay");
+        
+        cosplayHtml.innerHTML = 
+            `<img src=${cosplay.imagen} class="cosplay__imagen mb-2 img-fluid"  alt="${cosplay.anime} - ${cosplay.personaje} - ${cosplay.tipo}">
+
+            <div class="cosplay__footer">
+                <h3>${cosplay.tipo.toUpperCase()} ${cosplay.personaje.toUpperCase()}</h3>
+                <h5>${cosplay.anime}</h5>
+                <h4>$ ${cosplay.precio}</h4>
+            </div>
+
+            <div class="cosplay__carrito">  
+                <!-- Lo dejo armado con una clase para agregar la funcionalidad cuando se agrega algo al carrito en un futuro -->
+                <a href="">
+                    <i class="fa-solid fa-cart-plus"></i>
+                </a>
+            </div>`;
+
+        galeria.append(cosplayHtml);
+    }
+}
+
+// Menú con alerts, próximamente se migrará todo al DOM
+function main() { 
+
+    let opciones = ["Ver los cosplays ordenados", 
+                "Aplicar algún filtro a los cosplays y verlos",
+                "Buscar un cosplay",
+                "Agregar un cosplay al carrito",
+                "Eliminar un cosplay del carrito",
+                "Ver carrito",
+                "Registrarse", 
+                "Solicitar más información"];
+
+    let funciones =     [verCosplaysOrdenados, 
+                        filtrarCosplays,
+                        buscarCosplays,
+                        agregarCosplayAlCarrito,
+                        eliminarCosplayDelCarrito,
+                        verCarrito,
+                        registro,
+                        masInfo];
+
+    let menu = new Menu(opciones, funciones);
+    exit = menu.ejecutarMenu();
 }
 
 function verCosplaysOrdenados () {
@@ -113,7 +242,7 @@ function verCosplaysOrdenados () {
             cosplaysOrdenados.sort((a, b) => b.popularidad - a.popularidad); // No hay default porque la opción ya está validada
     }
 
-    alert(mostrarCosplays(cosplaysOrdenados));
+    modificarGaleria(cosplaysOrdenados);
 }
 
 function filtrarCosplays () {
@@ -123,18 +252,15 @@ function filtrarCosplays () {
     let opcion = menu.ejecutarMenu();
 
     let cosplaysFiltrados;
-    let mensaje = "COSPLAY FILTRADOS POR ";
     switch (opcion) {
         case 1:
-            mensaje += "OFERTAS\n\n" 
             cosplaysFiltrados = cosplays.filter(c => c.oferta > 0);
             break;
         case 2:
-            mensaje += "STOCK\n\n" 
             cosplaysFiltrados = cosplays.filter(c => c.stock > 0); // No hay default porque la opción ya está validada
     }
 
-    alert(mensaje + mostrarCosplays(cosplaysFiltrados));
+    modificarGaleria(cosplaysFiltrados);
 }
 
 function buscarCosplays() {
@@ -146,11 +272,7 @@ function buscarCosplays() {
                                             c.anime.toLowerCase().includes(word.toLowerCase())
     )
 
-    if (cosplaysBuscados.length == 0) {
-        alert(mensaje + "No hay coincidencias.");
-    } else {
-        alert(mensaje + mostrarCosplays(cosplaysBuscados));
-    }
+    modificarGaleria(cosplaysBuscados, mensaje);
 
 }
 
@@ -288,45 +410,3 @@ function masInfo() {
 
     alert("Gracias! Nos vamos a estar comunicando con vos!");
 }
-
-function salir () {
-    alert("Gracias por visitar nuestra página!");
-    return true;
-}
-
-// IMPLEMENTACIÓN DOM
-
-// Primero agrego los cosplays desde javascript, liberando muchísimo el html y así creando la galería.
-
-let galeria = document.querySelector(".main--index .main__seccion .row");
-
-for (const cosplay of cosplays) {
-    let cosplayHtml = document.createElement("article");
-    cosplayHtml.classList.add("col-8", "col-sm-4", "col-md-3", "cosplay");
-    
-    cosplayHtml.innerHTML = 
-        `<img src=${cosplay.imagen} class="cosplay__imagen mb-2 img-fluid"  alt="${cosplay.anime} - ${cosplay.personaje} - ${cosplay.tipo}">
-
-        <div class="cosplay__footer">
-            <h3>${cosplay.tipo.toUpperCase()} ${cosplay.personaje.toUpperCase()}</h3>
-            <h5>${cosplay.anime}</h5>
-            <h4>$ ${cosplay.precio}</h4>
-        </div>
-
-        <div class="cosplay__carrito">  
-            <!-- Lo dejo armado con una clase para agregar la funcionalidad cuando se agrega algo al carrito en un futuro -->
-            <a href="">
-                <i class="fa-solid fa-cart-plus"></i>
-            </a>
-        </div>`;
-
-    galeria.append(cosplayHtml);
-}
-
-// Luego aplico los filtros.
-let formOrden = document.querySelector("#orden");
-let formFiltro = document.querySelector("#filtro");
-console.log(formOrden);
-console.log(formFiltro);
-
-
