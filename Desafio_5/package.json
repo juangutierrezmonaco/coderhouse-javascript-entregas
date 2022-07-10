@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/juangutierrezmonaco/mi-repositorio/issues"
   },
-  "homepage": "https://github.com/juangutierrezmonaco/mi-repositorio#readme"
+  "homepage": "https://github.com/juangutierrezmonaco/mi-repositorio#readme",
+  "dependencies": {
+    "sass": "^1.53.0"
+  }
 }

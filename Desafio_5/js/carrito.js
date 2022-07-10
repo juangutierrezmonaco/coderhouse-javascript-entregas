@@ -2,6 +2,7 @@ class Carrito {
     constructor () {
         this.cosplays = [];
         this.cantidades = [];   // Arreglo paralelo con la cantidad de cada cosplay
+        this.descuento = 0;     // Descuento porcentual
         this.total = 0;
     }
 
@@ -12,6 +13,10 @@ class Carrito {
 
     getCantidadTotal() {
         return this.cantidades.reduce( (ac, el) => ac + el, 0);
+    }
+
+    existeCosplay(cosplay) {
+        return (this.cosplays.indexOf(cosplay) != -1)? true : false;
     }
 
     agregarCosplay(cosplay) {
@@ -53,8 +58,14 @@ class Carrito {
         return this.cosplays[indiceCosplay].calcularPrecio()*this.cantidades[indiceCosplay];
     }
 
+    calcularDescuento () {
+        let totalConEnvio = this.total + this.costoEnvio();
+        return calcularDescuento(totalConEnvio, this.descuento);
+    }
+
     calcularTotal () {
-        return this.total + this.costoEnvio();
+        let totalConEnvio = this.total + this.costoEnvio();
+        return (calcularPrecioConDescuento(totalConEnvio, this.descuento));
     }
 
     mostrarCosplaysCarrito (dummy = 0) {
@@ -88,11 +99,6 @@ class Carrito {
     }
 
     borrarCarrito () {
-        //  Tengo que actualizar el stock y borrar el carrito.
-        for (let i = 0; i < this.cosplays.length; i++) {
-            this.cosplays[i].stock += this.cantidades[i];
-        }
-
         this.cosplays.splice(0, this.cosplays.length);
         this.cantidades.splice(0, this.cantidades.length);
     }

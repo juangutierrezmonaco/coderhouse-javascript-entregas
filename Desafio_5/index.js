@@ -1,4 +1,10 @@
 // Esto estaría en un archivo
+const codigosDescuento = new Map();
+codigosDescuento.set("ORA10", 10);
+codigosDescuento.set("ORA25", 25);
+codigosDescuento.set("CODERHOUSE", 30);
+codigosDescuento.set("JUAN50", 50);
+
 const cosplaysBackup = [];
 cosplaysBackup.push(new Cosplay("Nobara Kugisaki", "Jujutsu Kaisen", "Cosplay", 7000, 0, 10, 5, "./assets/images/cosplays/hechos-a-medida/jujutsu-nobara.png"));
 cosplaysBackup.push(new Cosplay("Rei Ayanami", "Evangelion", "Seifuku", 5500, 0, 2, 100, "./assets/images/cosplays/hechos-a-medida/evangelion-rei.png", true));
@@ -241,6 +247,7 @@ let carrito = new Carrito();
 
 let carritoHtmlGaleria = document.querySelector("#galeria__carrito");
 let carritoHtmlFooter = document.querySelector("#footer__carrito");
+
 // Se encarga de transportar todas las modificaciones en el carrito al html.
 function modificarCarrito () {
 
@@ -305,18 +312,29 @@ function modificarCarrito () {
                 <span>Envío (CP 7600): </span>
                 <span>$ ${carrito.costoEnvio()}</span>
             </div>
+
+            <div class="fs-5">
+                <span>Descuentos: </span>
+                <span>$ ${carrito.calcularDescuento()}</span>
+            </div>
     
             <div class="fs-4">
                 <span>TOTAL: </span>
                 <span>$ ${carrito.calcularTotal()}</span>
             </div>
-    
-            <form class="fs-5">
-                <label>Si tenes un descuento ingresalo...</label>
-                <input placeholder=" Codigo de descuento..."></input>
-            </form>
-    
-            <button class="btn btn-dark mt-2 me-2">INICIAR COMPRA</button>`;
+        
+            <div class="fs-5 mt-5 flex-column row col-12 col-md-6">
+                <h4 class="">CÓDIGO DE DESCUENTO</h4>
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Ingrese su código" id="codigoDescuento">
+                    <button class="btn btn-dark text-white aplicarCodigo" type="submit">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+                <h6 class="cartelCodigoDescuento mt-2 ms-1"></h6>
+            </div>
+
+            <button class="btn btn-dark mt-4 me-2 iniciarCompra" type="submit">INICIAR COMPRA</button>`;
     
         carritoHtmlFooter.innerHTML = "";   //Borro lo que traía de antes
         carritoHtmlFooter.append(footerCarrito);
@@ -330,13 +348,34 @@ function modificarCarrito () {
 // Click en carrito de los cosplays
 galeriaIndex.addEventListener("submit", (e) => {
     e.preventDefault();
-    let thisCosplay = searchCosplayById(cosplays, e.submitter.parentElement.id);
-    carrito.agregarCosplay(thisCosplay);
+    let selectedCosplay = searchCosplayById(cosplays, e.submitter.parentElement.id);
 
-    modificarCarrito();
+    // Primero veo si existe en el carrito
+    if (!carrito.existeCosplay(selectedCosplay)) {
+        carrito.agregarCosplay(selectedCosplay);
+        modificarCarrito();
+    } else {
+        // Ahora necesito ir a la galería del carrito y buscar el cosplay que coincida y disparar el evento del botón más de ese,
+        // para validar si se puede agregar y mostrar el cartel de que no hay stock, y funcionalidades ya hechas ahí.
+        let nodosCarrito = carritoHtmlGaleria.childNodes;
+
+        let nodoCosplay = "";   // Este sería el encontrado
+        let i = 0;
+        while (nodoCosplay == "") {  // Mientras no lo encuentre
+            let thisCosplay = nodosCarrito[i++].querySelector(".header__carrito__offcanvas__producto__info");
+
+            if (thisCosplay.id == selectedCosplay.id) {
+                nodoCosplay = thisCosplay;
+            }
+        }
+
+        // Accedo a su botón de más y lo clickleo
+        let botonMas = nodoCosplay.querySelector(".carritoMas");
+        botonMas.click();
+    }
 })
 
-// Click en el más, menos o tachito
+// Click en el más, menos, o tachito
 carritoHtmlGaleria.addEventListener("submit", (e) => {
     e.preventDefault();
 
@@ -357,10 +396,8 @@ carritoHtmlGaleria.addEventListener("submit", (e) => {
             let mensaje = parent.querySelector(".stockAgotado"); 
         
             if (mensaje.innerText == "") {  // Si todavía no saltó el cartel
-                console.log("if");
                 mensaje.innerText = "¡UY! NO TENEMOS MÁS STOCK DE ESTE PRODUCTO PARA AGREGARLO AL CARRITO.";
             } else {
-                console.log("else");
                 mensaje.classList.remove("shake-vertical");
                 window.requestAnimationFrame(() => {
                     mensaje.classList.add("shake-vertical");
@@ -383,5 +420,63 @@ carritoHtmlGaleria.addEventListener("submit", (e) => {
     if (e.submitter.className.includes("tachito")) {
         carrito.eliminarCosplayCompleto(thisCosplay);
         modificarCarrito();
-    } 
+    }    
 })
+
+// Click en el aplicar descuento o iniciar compra
+carritoHtmlFooter.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    if (e.submitter.className.includes("aplicarCodigo")) {
+        let inputCodigo = carritoHtmlFooter.querySelector("#codigoDescuento");
+        let codigoDesc = inputCodigo.value.toUpperCase();   // Me traigo el código en el input
+        let desc = codigosDescuento.get(codigoDesc);
+        
+
+        let mensaje;
+        let color;
+
+        if (desc != undefined) {    // Si lo encontró
+            carrito.descuento = desc;
+            mensaje = `DESCUENTO APLICADO (${desc}% OFF)`;
+            color = "text-success";
+        } else {
+            carrito.descuento = 0; 
+            mensaje = "CUPÓN INVÁLIDO";
+            color = "text-danger";
+        }
+
+        
+        modificarCarrito();
+
+        let mensajeDescuento = document.querySelector(".cartelCodigoDescuento"); 
+        mensajeDescuento.innerText = mensaje
+
+        mensajeDescuento.classList.remove("fade-out", color);
+            window.requestAnimationFrame(() => {
+                mensajeDescuento.classList.add("fade-out", color);
+            });
+    }
+
+    if (e.submitter.className.includes("iniciarCompra")) {
+        alert(`Ahora será redirigido al sistema de venta por el monto de $ ${carrito.calcularTotal()}`)
+
+        if (compra(carrito.calcularTotal())) {  // Si se cobró exitosamente
+            // Actualizo stock
+            actualizarStock();
+
+            // Actualizo la galería por si alguno se quedó sin stock
+            modificarGaleria(cosplays);
+
+            // Borro el carrito
+            carrito.borrarCarrito();
+            modificarCarrito();
+        }
+    }
+})
+
+// De momento esto simula el sistema de compra, devuelve si se cobró exitosamente
+function compra (monto) {
+    console.log(`Se cobraron $${monto}.`);
+    return true;    // De momento devuelve que la compra fue exitosa
+}

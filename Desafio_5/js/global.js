@@ -49,8 +49,8 @@ function calcularPrecioConDescuento (total, desc) {  // Se le pasa un total y un
     return total * (1 - desc/100);
 }
 
-/**
- * NOTA: LA MAYORIA DE LAS CLASES TIENE ALGÚN MÉTODO QUE SE LLAMA "mostrarAlgo()", ESTOS GENERALMENTE NO MUESTRAN NADA SINO QUE GENERAN UN MENSAJE QUE
- * LUEGO SE DISPONE EN UN ALERT. ESTO ES PARA NO SUJETAR LOS MÉTODOS AL ALERT Y DESDE AFUERA TENER ACCESO A ESTE MENSAJE QUE RETORNAN POR SI SE 
- * DEBE USAR PARA OTRA COSA LA IMPRESIÓN, POR DECIRLO DE ALGUNA MANERA.ñ
- */
+function actualizarStock () {
+    for (const cosplay of cosplays) {
+        cosplay.stock -= carrito.getCantidad(cosplay);
+    }
+}
