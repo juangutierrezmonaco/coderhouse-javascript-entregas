@@ -15,21 +15,26 @@ cosplaysBackup.push(new Cosplay("Kaonashi", "El viaje de Chihiro", "Cosplay", 80
 
 cosplaysBackup.sort((a, b) => b.popularidad - a.popularidad);   // Por defecto se ordenan por popularidad
 
-let cosplays = cosplaysBackup;  // Tengo un backup de los datos originales por cualquier error
+let cosplays = cosplaysBackup;  // Tengo un backup de los datos originales, sería como la base de datos
 
+// Referencias al html
+let galeriaIndex = document.querySelector(".main--index .galeria");
+
+function main () {
+    // Creación de galería y muestra
+    cargarGaleria(cosplays);
+}
+
+main();
 
 /**************************************************************/
 /*                          GALERIA                           */
 /**************************************************************/
 
-// Creación de galería y muestra
-let galeriaIndex = document.querySelector(".main--index .galeria");
-cargarGaleria(cosplays);
-
-// Convierte y agrega un cosplay a la galeria
-function agregarCosplayAGaleria (cosplay) {
+// Convierte un cosplay al formato que tiene que tener en el html
+function cosplayToHtml (cosplay) {
     let cosplayHtml = document.createElement("article");
-    cosplayHtml.id = cosplay.id;
+    cosplayHtml.id = `galeriaIndex${cosplay.id}`;
     cosplayHtml.classList.add("col-8", "col-sm-4", "col-md-3", "cosplay");
     
     let precio = cosplay.oferta == 0 ? `<h4>$ ${cosplay.precio}</h4>` : `<h4>(<del>$ ${cosplay.precio}</del>) $ ${cosplay.calcularPrecio()}</h4>`;
@@ -59,13 +64,19 @@ function agregarCosplayAGaleria (cosplay) {
             <h4>ESPECIAL: ${cosplay.especial}</h4> 
         </div> */
 
-    galeriaIndex.append(cosplayHtml);
-        
+        return cosplayHtml;
+}
+
+htmlToCosplay();
+function htmlToCosplay (cosplayHtml) {
+    let id  = cosplayHtml.id;
+    id = numbersInString(c);    // Obtengo el numero
+    
 }
 
 function cargarGaleria (arrCosplays) {
     for (const cosplay of arrCosplays) {
-        agregarCosplayAGaleria(cosplay);
+        galeriaIndex.append(cosplayToHtml(cosplay));
     }
 }
 
