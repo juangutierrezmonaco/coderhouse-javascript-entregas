@@ -41,9 +41,9 @@ function ingresarOpcion(limInf, limSup, mensaje, mensajeError = "Opción Incorre
     return opcion;
 }
 
-function numbersInString (str) {
+function numbersInString (str) {    // Retorna los números de un string o NaN
     let result = str.split("").filter(c => !(isNaN(c)));
-    return(parseInt(result.join("")))
+    return parseInt(result.join(""));
 }
 
 function calcularDescuento (total, desc) {

@@ -18,39 +18,50 @@ class Cosplay {
     calcularPrecio () {
         return (this.oferta == 0) ? this.precio : calcularPrecioConDescuento(this.precio, this.oferta);
     }
-    
-    clonarCosplay () {
-        let cosplayCopia = new Cosplay(this.personaje, this.anime, this.tipo, this.precio, this.oferta, this.popularidad, this.stock);
+
+    toHtml () {
+        let cosplayHtml = document.createElement("article");
+        cosplayHtml.id = `galeriaIndex${cosplay.id}`;
+        cosplayHtml.classList.add("col-8", "col-sm-4", "col-md-3", "cosplay");
         
-        return cosplayCopia;
-    }
-
-    toStr() {
-        let print = [];
-        print.push("Personaje: " + this.personaje);
-        print.push("Anime: " + this.anime);
-        print.push("Tipo de prenda: " + this.tipo);
-        print.push("Precio: $" + this.precio);
-        print.push( ((this.oferta == 0) ? "No tiene descuento" : `Tiene un ${this.oferta}% de descuento ($${calcularPrecioConDescuento(this.precio, this.oferta)} con el descuento)`) );
-        print.push(`Cantidad: ${this.stock}`);      // NOTA: ESTO ESTÁ MOMENTANEAMENTE, EL USUARIO NO DEBERÍA VERLO, ES PARA DEBUGGEAR
-        return (print.join("\n"));
-    }
-}
-
-function mostrarCosplays (cosplays, dummy = 0) {
-    if (cosplays.length == 0) return 0; // Si el arreglo está vacío devuelvo un 0
-
-    let mensaje = [];
-    for (cosplay of cosplays) {
-        mensaje.push(cosplay.toStr() + "\n\n");
-    }
-    if (dummy != 0) {
-        return mensaje;     // Si lo quiero devolver como un arreglo de strings.  
-    } else {
-        return mensaje.join("");    // Si lo quiero devolver todo como un string.
+        let precio = cosplay.oferta == 0 ? `<h4>$ ${cosplay.precio}</h4>` : `<h4>(<del>$ ${cosplay.precio}</del>) $ ${cosplay.calcularPrecio()}</h4>`;
+    
+        let mostrarDescuento = (cosplay.oferta == 0) ? "d-none" : "d-flex"; 
+        cosplayHtml.innerHTML = 
+            `<img src=${cosplay.imagen} class="cosplay__imagen mb-2 img-fluid"  alt="${cosplay.anime} - ${cosplay.personaje} - ${cosplay.tipo}">
+    
+            <div class="cosplay__footer">
+                <h3>${cosplay.tipo.toUpperCase()} ${cosplay.personaje.toUpperCase()}</h3>
+                <h5>${cosplay.anime}</h5>
+                ${precio}
+            </div>
+    
+            <button type="submit" class="cosplay__carrito" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCarrito" aria-controls="offcanvasCarrito">
+                <i class="fa-solid fa-cart-plus"></i>
+            </button>
+    
+            <div class="cosplay__descuento ${mostrarDescuento}">
+                ${cosplay.oferta}% <br>OFF
+            </div>`;
+    
+            // Nota: Si se quiere ver cómo funcionan los filtros, agregar el div de acá abajo luego de la línea 43
+            /* <div class="cosplay__footer BORRAR">
+                <h4>OFERTA: ${cosplay.oferta}</h4>
+                <h4>STOCK: ${cosplay.stock}</h4>
+                <h4>ESPECIAL: ${cosplay.especial}</h4> 
+            </div> */
+    
+            return cosplayHtml;
     }
 }
 
 function searchCosplayById (cosplays, id) {
     return cosplays.find(c => c.id == parseInt(id));
 } 
+
+function htmlToCosplay (cosplays, cosplayHtml) {
+    let id  = cosplayHtml.id;
+    id = numbersInString(c);    // Obtengo el numero en el id
+
+    return (searchCosplayById(id));
+}
