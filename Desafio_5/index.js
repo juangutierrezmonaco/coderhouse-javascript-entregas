@@ -17,8 +17,10 @@ cosplaysBackup.sort((a, b) => b.popularidad - a.popularidad);   // Por defecto s
 
 let cosplays = cosplaysBackup;  // Tengo un backup de los datos originales, sería como la base de datos
 
-// Referencias al html
+// Referencias al html usadas a lo largo del programa
 let galeriaIndex = document.querySelector(".main--index .galeria");
+let carritoHtmlGaleria = document.querySelector("#galeria__carrito");
+let carritoHtmlFooter = document.querySelector("#footer__carrito");
 
 function main () {
     // Creación de galería y muestra
@@ -32,17 +34,14 @@ main();
 /**************************************************************/
 
 // Convierte un cosplay al formato que tiene que tener en el html
-
-htmlToCosplay();
-
 function cargarGaleria (arrCosplays) {
     for (const cosplay of arrCosplays) {
-        galeriaIndex.append(cosplayToHtml(cosplay));
+        galeriaIndex.append(cosplay.toHtml());
     }
 }
 
-// Modificación de galería
-function modificarGaleria (cosplaysModificados, mensaje = "") {
+// Modificación de galería, se puede pasar un cartel para mostrar antes de la galeria
+function actualizarGaleria (cosplaysModificados, mensaje = "") {
     galeriaIndex.innerHTML = ""; // Borro lo que ya estaba
 
     let titulo = document.createElement("h2");
@@ -55,10 +54,10 @@ function modificarGaleria (cosplaysModificados, mensaje = "") {
 // Esta función es para obtener el estado actual de los cosplays en la galería  (Por ejemplo: si se quiere ordenar cosplays ya filtrados)
 function getCosplaysFromHtml () {
     let cosplaysModificados = [];
-    let cosplaysHtml = document.querySelectorAll(".cosplay");
+    let cosplaysHtml = galeriaIndex.querySelectorAll(".cosplay");
 
     for (const cosplay of cosplaysHtml) {
-        let thisId = cosplay.id;
+        let thisId = getIdCosplayHtml(cosplay);
         cosplaysModificados.push(searchCosplayById(cosplays, thisId));
     }
 
@@ -125,7 +124,7 @@ opcionesOrden.onchange = () => {
             cosplaysOrdenados.sort((a, b) => b.popularidad - a.popularidad); // No hay default porque la opción ya está validada
     }
 
-    modificarGaleria(cosplaysOrdenados);
+    actualizarGaleria(cosplaysOrdenados);
 }
 
 // Aplicación de filtros a la galería
@@ -134,7 +133,7 @@ let opcionesFiltro = document.querySelector("#filtro");
 opcionesFiltro.onchange = () => {
     let checkBoxes = document.querySelectorAll('input[name=filtrado-articulos]');
 
-    // Genero un filtro que retorna una función que es la conjunción de los 3 filtros
+    // Genero un filtro que retorna una función que es la conjunción de los 3 filtros, por si se aplican 1, 2 o n filtros al mismo tiempo o algunos.
     const filtro = (c) => {
         let funcion = true;
         for (const checkBox of checkBoxes) {
@@ -157,7 +156,7 @@ opcionesFiltro.onchange = () => {
     }
     
     let cosplaysFiltrados = cosplays.filter(filtro);
-    modificarGaleria(cosplaysFiltrados); 
+    actualizarGaleria(cosplaysFiltrados); 
 }
 
 // Búsqueda en la galería
@@ -173,7 +172,7 @@ buscadorInput.addEventListener("keydown", (e) => {
         buscar(e);
     } 
 
-    // Si se borra, se restaura el arreglo al original y se busca nuevamente (porque en la búsqueda modifico el arreglo). También aplica para el caso que no se ponga nada en la búsqueda, se restaura el arreglo.
+    // Si se borra, se restaura el arreglo al original y se busca nuevamente (porque en la búsqueda modifico el arreglo). También aplica para el caso que no se ponga nada en la búsqueda, se restaura el arreglo. Luego de que se restaura se disparan los otros eventos para buscar.
     if (e.key = "\r") {     
         cosplays = cosplaysBackup;
     }
@@ -190,18 +189,18 @@ function buscar (e) {
         word = form.value;
     }
 
-    let mensaje = "";
-
     cosplays = cosplays.filter(c => 
         c.personaje.toLowerCase().includes(word.toLowerCase()) ||
         c.anime.toLowerCase().includes(word.toLowerCase())  ||
         c.tipo.toLowerCase().includes(word.toLowerCase())
     )
+
+    let mensaje = "";
     if (cosplays.length == 0) {
         mensaje = "No hay coincidencias con la búsqueda";
     }
 
-    modificarGaleria(cosplays, mensaje);
+    actualizarGaleria(cosplays, mensaje);
 
     // Por último, cuando se busca se borran todos los filtros.
     // Esto es porque se puede buscar y filtrar esos resultados, pero no buscar en los resultados filtrados.
@@ -216,15 +215,10 @@ function buscar (e) {
 /**************************************************************/
 let carrito = new Carrito();
 
-
-let carritoHtmlGaleria = document.querySelector("#galeria__carrito");
-let carritoHtmlFooter = document.querySelector("#footer__carrito");
-
 // Se encarga de transportar todas las modificaciones en el carrito al html.
-function modificarCarrito () {
+function actualizarCarrito (inputCodigoText = "") {
 
-
-    // Modifico cartel 
+    // Actualizo cartel 
     let carritoVacio = document.querySelector("#carritoVacio");
     let mensaje = document.createElement("h5");
     mensaje.innerText = (carrito.length() == 0) ?  "No hay productos en su carrito!" : "";
@@ -232,100 +226,38 @@ function modificarCarrito () {
     carritoVacio.innerHTML = '';
     carritoVacio.append(mensaje);
 
-    // Agregar al carrito
-    let carritoHtmlGaleria = document.querySelector("#galeria__carrito");
-    let carritoHtmlFooter = document.querySelector("#footer__carrito");
+    // Actualizo galeria carrito
     carritoHtmlGaleria.innerHTML = ''; // Ya que voy a recorrer todo nuevamente
-    carritoHtmlFooter.innerHTML = '';
 
     for (cosplay of carrito.cosplays) {
-        let cosplayHtml = document.createElement("div");
-        cosplayHtml.classList.add("header__carrito__offcanvas__producto");
-
-        let precio = cosplay.oferta == 0 ? `$ ${cosplay.precio}` : `(<del>$ ${cosplay.precio}</del>) $ ${cosplay.calcularPrecio()}`
-        let descuento = cosplay.oferta == 0 ? `` : `(${cosplay.oferta}% OFF)`;
-
-        cosplayHtml.innerHTML = 
-            `<div class="header__carrito__offcanvas__producto__imagen">
-                <img src=${cosplay.imagen} alt="${cosplay.anime} - ${cosplay.personaje} - ${cosplay.tipo}">
-            </div>
-
-            <div class="header__carrito__offcanvas__producto__info" id=${cosplay.id}>
-                <span>${cosplay.tipo.toUpperCase()} ${cosplay.personaje.toUpperCase()}</span>
-                <span>${precio} ${descuento}</span>
-                
-                <div class="header__carrito__offcanvas__producto__info__cantidad mb-3">
-                    <button class="btn btn-light carritoMenos" type="submit"><i class="fa fa-minus"></i></button>
-                    <span class="carritoCantidad">${carrito.getCantidad(cosplay)}</span>
-                    <button class="btn btn-light carritoMas" type="submit"><i class="fa fa-plus"></i></button>
-                </div>
-
-                <h6 class="stockAgotado"></h6>
-            </div>
-
-            <div class="header__carrito__offcanvas__producto__precio">$ ${carrito.calcularSubcosto(cosplay)} </div>
-
-            <div>
-                <button class="btn btn-danger header__carrito__offcanvas__producto__tachito" type="submit">
-                    <i class="fa-solid fa-trash-can"></i>
-                </button>
-            </div>`;
-        carritoHtmlGaleria.append(cosplayHtml);
-
-        let footerCarrito = document.createElement("div");
-        footerCarrito.classList.add("header__carrito__offcanvas__footer");
-        footerCarrito.innerHTML = 
-            `<div class="fs-5">
-                <span>Subtotal (sin envío):</span>
-                <span>$ ${carrito.total}</span>
-            </div>
-    
-            <div class="fs-5">
-                <span>Envío (CP 7600): </span>
-                <span>$ ${carrito.costoEnvio()}</span>
-            </div>
-
-            <div class="fs-5">
-                <span>Descuentos: </span>
-                <span>$ ${carrito.calcularDescuento()}</span>
-            </div>
-    
-            <div class="fs-4">
-                <span>TOTAL: </span>
-                <span>$ ${carrito.calcularTotal()}</span>
-            </div>
-        
-            <div class="fs-5 mt-5 flex-column row col-12 col-md-6">
-                <h4 class="">CÓDIGO DE DESCUENTO</h4>
-                <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Ingrese su código" id="codigoDescuento">
-                    <button class="btn btn-dark text-white aplicarCodigo" type="submit">
-                        <i class="fa-solid fa-paper-plane"></i>
-                    </button>
-                </div>
-                <h6 class="cartelCodigoDescuento mt-2 ms-1"></h6>
-            </div>
-
-            <button class="btn btn-dark mt-4 me-2 iniciarCompra" type="submit">INICIAR COMPRA</button>`;
-    
-        carritoHtmlFooter.innerHTML = "";   //Borro lo que traía de antes
-        carritoHtmlFooter.append(footerCarrito);
+        carritoHtmlGaleria.append(carrito.cosplayToHtml(cosplay));
     }
 
-    // Modifico el carrito del header
+    // Actualizo el footer
+    carritoHtmlFooter.innerHTML = '';
+    if (carrito.getCantidadTotal() != 0) {
+        carritoHtmlFooter.append(carrito.footerToHtml());
+    }
+
+    // Actualizo el carrito del header
     let carritoHeader = document.querySelector(".header__carrito span");
     carritoHeader.innerHTML = `CARRITO (${carrito.getCantidadTotal()}) $${carrito.total}`;
+
+    // Como actualicé todo, borré el código ingresado pero quiero que quede a la vista para el usuario.
+    let inputCodigo = carritoHtmlFooter.querySelector("#codigoDescuento");
+    inputCodigo.value = inputCodigoText;
 }
 
 // Click en carrito de los cosplays
 galeriaIndex.addEventListener("submit", (e) => {
     e.preventDefault();
-    let selectedCosplay = searchCosplayById(cosplays, e.submitter.parentElement.id);
+    let thisId = getIdCosplayHtml(e.submitter.parentElement.id);
+    let selectedCosplay = searchCosplayById(cosplays, thisId);
 
     // Primero veo si existe en el carrito
     if (!carrito.existeCosplay(selectedCosplay)) {
         carrito.agregarCosplay(selectedCosplay);
-        modificarCarrito();
+        actualizarCarrito();
     } else {
         // Ahora necesito ir a la galería del carrito y buscar el cosplay que coincida y disparar el evento del botón más de ese,
         // para validar si se puede agregar y mostrar el cartel de que no hay stock, y funcionalidades ya hechas ahí.
@@ -333,10 +265,10 @@ galeriaIndex.addEventListener("submit", (e) => {
 
         let nodoCosplay = "";   // Este sería el encontrado
         let i = 0;
-        while (nodoCosplay == "") {  // Mientras no lo encuentre
+        while (nodoCosplay == "" && ) {  // Mientras no lo encuentre o se recorran todos los nodos y no lo encuentre (error que no tendría que pasar)
             let thisCosplay = nodosCarrito[i++].querySelector(".header__carrito__offcanvas__producto__info");
 
-            if (thisCosplay.id == selectedCosplay.id) {
+            if (getIdCosplayHtml(thisCosplay) == selectedCosplay.id) {
                 nodoCosplay = thisCosplay;
             }
         }
@@ -357,12 +289,13 @@ carritoHtmlGaleria.addEventListener("submit", (e) => {
         parent = parent.parentNode;
     }
 
-    let id = parent.querySelector(".header__carrito__offcanvas__producto__info").id;
+    let id = getIdCosplayHtml(parent.querySelector(".header__carrito__offcanvas__producto__info"));
     let thisCosplay = searchCosplayById(cosplays, id);
+    
     let cantidad = parseInt(parent.querySelector(".carritoCantidad").innerText);
 
     if (e.submitter.className.includes("carritoMas")) {
-
+        
         if (cantidad == thisCosplay.stock) {
             // Escalo hasta llegar a la info del cosplay y voy stockAgotado para mostrar el cartel.
             let mensaje = parent.querySelector(".stockAgotado"); 
@@ -377,7 +310,7 @@ carritoHtmlGaleria.addEventListener("submit", (e) => {
             }
         } else {
             carrito.agregarCosplay(thisCosplay);
-            modificarCarrito();
+            actualizarCarrito();
         }
 
     }
@@ -385,13 +318,13 @@ carritoHtmlGaleria.addEventListener("submit", (e) => {
     if (e.submitter.className.includes("carritoMenos")) {
         if (cantidad > 1) {
             carrito.eliminarCosplay(thisCosplay);
-            modificarCarrito();
+            actualizarCarrito();
         }
     }   
 
     if (e.submitter.className.includes("tachito")) {
         carrito.eliminarCosplayCompleto(thisCosplay);
-        modificarCarrito();
+        actualizarCarrito();
     }    
 })
 
@@ -417,12 +350,12 @@ carritoHtmlFooter.addEventListener("submit", (e) => {
             mensaje = "CUPÓN INVÁLIDO";
             color = "text-danger";
         }
-
         
-        modificarCarrito();
+        actualizarCarrito(inputCodigo.value);    // Como reimprimo todo el carrito, necesito pasar el valor ingresado por el usuario para que perdure 
 
+        // Por último muestro un cartel si el código es o no inválido
         let mensajeDescuento = document.querySelector(".cartelCodigoDescuento"); 
-        mensajeDescuento.innerText = mensaje
+        mensajeDescuento.innerText = mensaje;
 
         mensajeDescuento.classList.remove("fade-out", color);
             window.requestAnimationFrame(() => {
@@ -438,11 +371,11 @@ carritoHtmlFooter.addEventListener("submit", (e) => {
             actualizarStock();
 
             // Actualizo la galería por si alguno se quedó sin stock
-            modificarGaleria(cosplays);
+            actualizarGaleria(cosplays);
 
             // Borro el carrito
             carrito.borrarCarrito();
-            modificarCarrito();
+            actualizarCarrito();
         }
     }
 })

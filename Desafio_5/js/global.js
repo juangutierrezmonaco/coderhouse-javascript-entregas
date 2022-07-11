@@ -55,7 +55,7 @@ function calcularPrecioConDescuento (total, desc) {  // Se le pasa un total y un
 }
 
 function actualizarStock () {
-    for (const cosplay of cosplays) {
+    for (const cosplay of carrito.cosplays) {
         cosplay.stock -= carrito.getCantidad(cosplay);
     }
 }
