@@ -30,5 +30,6 @@ html {
  @-webkit-keyframes shake-vertical{0%,100%{-webkit-transform:translateY(0);transform:translateY(0)}10%,30%,50%,70%{-webkit-transform:translateY(-8px);transform:translateY(-8px)}20%,40%,60%{-webkit-transform:translateY(8px);transform:translateY(8px)}80%{-webkit-transform:translateY(6.4px);transform:translateY(6.4px)}90%{-webkit-transform:translateY(-6.4px);transform:translateY(-6.4px)}}@keyframes shake-vertical{0%,100%{-webkit-transform:translateY(0);transform:translateY(0)}10%,30%,50%,70%{-webkit-transform:translateY(-8px);transform:translateY(-8px)}20%,40%,60%{-webkit-transform:translateY(8px);transform:translateY(8px)}80%{-webkit-transform:translateY(6.4px);transform:translateY(6.4px)}90%{-webkit-transform:translateY(-6.4px);transform:translateY(-6.4px)}}
 
 /* Fade Out*/
-.fade-out{-webkit-animation:fade-out 3s ease-out both;animation:fade-out 3s ease-out both}
+$duracion: cubic-bezier(1,0,.13,-0.03);
+.fade-out{-webkit-animation:fade-out 3s $duracion both;animation:fade-out 2s $duracion both}
  @-webkit-keyframes fade-out{0%{opacity:1}100%{opacity:0}}@keyframes fade-out{0%{opacity:1}100%{opacity:0}}

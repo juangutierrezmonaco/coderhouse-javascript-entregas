@@ -345,11 +345,11 @@ carritoHtmlFooter.addEventListener("submit", (e) => {
 
         if (desc != undefined) {    // Si lo encontró
             carrito.descuento = desc;
-            mensaje = `DESCUENTO APLICADO (${desc}% OFF)`;
+            mensaje = `DESCUENTO APLICADO (${desc}% OFF) <i class="fa-solid fa-face-grin-stars"></i>`;
             color = "text-success";
         } else {
             carrito.descuento = 0; 
-            mensaje = "CUPÓN INVÁLIDO";
+            mensaje = `CUPÓN INVÁLIDO <i class="fa-solid fa-face-grin-beam-sweat"></i> `;
             color = "text-danger";
         }
         
@@ -357,7 +357,7 @@ carritoHtmlFooter.addEventListener("submit", (e) => {
 
         // Por último muestro un cartel si el código es o no inválido
         let mensajeDescuento = document.querySelector(".cartelCodigoDescuento"); 
-        mensajeDescuento.innerText = mensaje;
+        mensajeDescuento.innerHTML = mensaje;
 
         mensajeDescuento.classList.remove("fade-out", color);
             window.requestAnimationFrame(() => {
