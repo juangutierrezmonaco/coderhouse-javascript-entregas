@@ -210,6 +210,23 @@ function buscar (e) {
     }
 }
 
+// Búsqueda desde el header - Dispara el buscador de arriba
+let buscadorHeader = document.querySelector(".header__buscador");
+buscadorHeader.addEventListener("submit", (e) => {
+    e.preventDefault();
+    let headerBuscador =e.target.querySelector("#buscador");
+
+    // Elementos del buscador de la galeria - Pongo la palabra en el input, le hago focus y disparo el botón
+    let buscadorBoton = buscador.querySelector(".buttonBuscador");
+    buscadorInput.focus();
+    buscadorInput.value = headerBuscador.value; 
+    buscadorBoton.click();
+
+    // Limpio el input y saco el focus
+    headerBuscador.value = "";
+    headerBuscador.blur();
+})
+
 /**************************************************************/
 /*                          CARRITO                           */
 /**************************************************************/
@@ -245,7 +262,9 @@ function actualizarCarrito (inputCodigoText = "") {
 
     // Como actualicé todo, borré el código ingresado pero quiero que quede a la vista para el usuario.
     let inputCodigo = carritoHtmlFooter.querySelector("#codigoDescuento");
-    inputCodigo.value = inputCodigoText;
+    if (inputCodigo != null) { 
+        inputCodigo.value = inputCodigoText;
+    }
 }
 
 // Click en carrito de los cosplays
@@ -378,12 +397,15 @@ carritoHtmlFooter.addEventListener("submit", (e) => {
             // Borro el carrito
             carrito.borrarCarrito();
             actualizarCarrito();
+
+            // Cierro la ventana del carrito
+            offcanvasCarrito.querySelector(".btn-close").click();
         }
     }
 })
 
 // De momento esto simula el sistema de compra, devuelve si se cobró exitosamente
 function compra (monto) {
-    console.log(`Se cobraron $${monto}.`);
+    alert(`Se cobraron $${monto}.`);
     return true;    // De momento devuelve que la compra fue exitosa
 }
