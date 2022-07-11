@@ -49,7 +49,9 @@ class Carrito {
         carrito.cantidades.splice(indiceCosplay, 1);
     }
 
-    costoEnvio () {    // De momento, si el total es más de 7000, el envío es gratis, sino es 1000 (Para evitar calcular con los C.P.)
+    // De momento, si el total es más de 7000, el envío es gratis, sino es 1000 (Para evitar calcular con los C.P.). N
+    // Nota: Si el total es superior a 7000 pero con el descuento queda menos, el envío sigue siendo gratis.
+    costoEnvio () {    
         return (this.total >= 7000)? 0: 1000;
     }
 
@@ -58,49 +60,20 @@ class Carrito {
         return this.cosplays[indiceCosplay].calcularPrecio()*this.cantidades[indiceCosplay];
     }
 
-    calcularDescuento () {
-        let totalConEnvio = this.total + this.costoEnvio();
-        return calcularDescuento(totalConEnvio, this.descuento);
+    calcularDescuento () {  // El descuento es sobre los productos, no incluye el envío
+        return calcularDescuento(this.total, this.descuento);
     }
 
     calcularTotal () {
-        let totalConEnvio = this.total + this.costoEnvio();
-        return (calcularPrecioConDescuento(totalConEnvio, this.descuento));
-    }
-
-    mostrarCosplaysCarrito (dummy = 0) {
-        let mensaje = [];
-        for (let i = 0; i < this.cosplays.length; i++) {
-            let aux = "";
-            aux += `${this.cosplays[i].tipo} ${this.cosplays[i].personaje} (${this.cosplays[i].anime})\n`;
-            aux += `Cantidad: ${this.cantidades[i]}\n`;
-            aux += `Precio: $${this.cosplays[i].calcularPrecio()}\n`;
-            aux += `Subtotal: $${this.cosplays[i].calcularPrecio()*this.cantidades[i]}\n\n`
-            
-            mensaje.push(aux);
-        }
-        if (dummy != 0) {
-            return mensaje;     // Si lo quiero devolver como un arreglo de strings.  
-        } else {
-            return mensaje.join("");    // Si lo quiero devolver todo como un string.
-        }
-    }
-
-    mostrarCarrito () {
-        let mensaje = [];
-        
-        if (this.cosplays.length == 0) {
-            mensaje = "Su carrito está vacío.";
-        } else {
-            mensaje = this.mostrarCosplaysCarrito() + `Envío: $${this.costoEnvio(this.total)}\n` + `TOTAL: $${this.calcularTotal()}`;
-            
-        }
-        return mensaje;
+        let totalConEnvio = calcularPrecioConDescuento(this.total, this.descuento) + this.costoEnvio();
+        return totalConEnvio;
     }
 
     borrarCarrito () {
         this.cosplays.splice(0, this.cosplays.length);
         this.cantidades.splice(0, this.cantidades.length);
+        this.descuento = 0;
+        this.total = 0;
     }
 
     length () {

@@ -251,7 +251,7 @@ function actualizarCarrito (inputCodigoText = "") {
 // Click en carrito de los cosplays
 galeriaIndex.addEventListener("submit", (e) => {
     e.preventDefault();
-    let thisId = getIdCosplayHtml(e.submitter.parentElement.id);
+    let thisId = getIdCosplayHtml(e.submitter.parentElement);
     let selectedCosplay = searchCosplayById(cosplays, thisId);
 
     // Primero veo si existe en el carrito
@@ -265,7 +265,9 @@ galeriaIndex.addEventListener("submit", (e) => {
 
         let nodoCosplay = "";   // Este sería el encontrado
         let i = 0;
-        while (nodoCosplay == "" && ) {  // Mientras no lo encuentre o se recorran todos los nodos y no lo encuentre (error que no tendría que pasar)
+        
+        // Mientras no lo encuentre o se recorran todos los nodos y no lo encuentre (error que no tendría que pasar, pero evito el loop infinito)
+        while (nodoCosplay == "" && i < nodosCarrito.length) {  
             let thisCosplay = nodosCarrito[i++].querySelector(".header__carrito__offcanvas__producto__info");
 
             if (getIdCosplayHtml(thisCosplay) == selectedCosplay.id) {
