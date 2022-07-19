@@ -1,21 +1,7 @@
-// Esto estaría en un archivo
-const codigosDescuento = new Map();
-codigosDescuento.set("ORA10", 10);
-codigosDescuento.set("ORA25", 25);
-codigosDescuento.set("CODERHOUSE", 30);
-codigosDescuento.set("JUAN50", 50);
-
-const cosplaysBackup = [];
-cosplaysBackup.push(new Cosplay("Nobara Kugisaki", "Jujutsu Kaisen", "Cosplay", 7000, 0, 10, 5, "./assets/images/cosplays/hechos-a-medida/jujutsu-nobara.png"));
-cosplaysBackup.push(new Cosplay("Rei Ayanami", "Evangelion", "Seifuku", 5500, 0, 2, 100, "./assets/images/cosplays/hechos-a-medida/evangelion-rei.png", true));
-cosplaysBackup.push(new Cosplay("Tradicional", "Anime", "Seifuku", 6000, 0, 100, 20, "./assets/images/cosplays/hechos-a-medida/school-girl.png"));
-cosplaysBackup.push(new Cosplay("Legión de Reconocimiento", "Shingeki no Kyojin", "Chaqueta", 6500, 10, 100, 0, "./assets/images/cosplays/hechos-a-medida/shingeki-chaqueta.png"));
-cosplaysBackup.push(new Cosplay("Legión de Reconocimiento", "Shingeki no Kyojin", "Saco", 9500, 25, 120, 5, "./assets/images/cosplays/hechos-a-medida/shigenki-saco.png", true));
-cosplaysBackup.push(new Cosplay("Kaonashi", "El viaje de Chihiro", "Cosplay", 8000, 15, 40, 7, "./assets/images/cosplays/chihiro-noface.png", true));
-
-cosplaysBackup.sort((a, b) => b.popularidad - a.popularidad);   // Por defecto se ordenan por popularidad
-
-let cosplays = cosplaysBackup;  // Tengo un backup de los datos originales, sería como la base de datos
+// Arreglos globales que se usan a lo largo del código
+let codigosDescuento;
+let cosplays;
+let carrito = new Carrito();
 
 // Referencias al html usadas a lo largo del programa
 let galeriaIndex = document.querySelector(".main--index .galeria");
@@ -23,8 +9,21 @@ let carritoHtmlGaleria = document.querySelector("#galeria__carrito");
 let carritoHtmlFooter = document.querySelector("#footer__carrito");
 
 function main () {
+    // Recupero información de la base de datos
+    codigosDescuento = getCodigosFromDB();
+    cosplays = getCosplaysFromDB();
+
+    cosplays.sort((a, b) => b.popularidad - a.popularidad);   // Por defecto se ordenan por popularidad
+
     // Creación de galería y muestra
     cargarGaleria(cosplays);
+
+    // Recupero carrito
+    carrito.recuperarCarrito();
+    
+    // Paso código de descuento si existía de antes
+    let codigoTexto = localStorage.getItem("inputCodigo") == null ? "" : localStorage.getItem("inputCodigo");
+    actualizarCarrito(codigoTexto);
 }
 
 main();
@@ -231,11 +230,16 @@ buscadorHeader.addEventListener("submit", (e) => {
 /**************************************************************/
 /*                          CARRITO                           */
 /**************************************************************/
-let carrito = new Carrito();
 
 // Se encarga de transportar todas las modificaciones en el carrito al html.
-function actualizarCarrito (inputCodigoText = "") {
+function actualizarCarrito (inputCodigoText = localStorage.getItem("inputCodigo")) {
+    // Guardo en localStorage
+    carrito.guardarCarrito();
 
+    // Si pasa por parámetro tengo que actualizar
+    localStorage.removeItem("inputCodigo");
+    localStorage.setItem("inputCodigo", inputCodigoText);
+    
     // Actualizo cartel 
     let carritoVacio = document.querySelector("#carritoVacio");
     let mensaje = document.createElement("h5");
@@ -264,7 +268,14 @@ function actualizarCarrito (inputCodigoText = "") {
     // Como actualicé todo, borré el código ingresado pero quiero que quede a la vista para el usuario.
     let inputCodigo = carritoHtmlFooter.querySelector("#codigoDescuento");
     if (inputCodigo != null) { 
-        inputCodigo.value = inputCodigoText;
+        inputCodigo.value = localStorage.getItem("inputCodigo");
+    }
+
+    // Por último actualizo el localStorage si se borró el carrito o está vacío
+    if (carrito.length() == 0) {
+        localStorage.removeItem("inputCodigo");
+        localStorage.setItem("inputCodigo", ""); 
+        carrito.descuento = 0;
     }
 }
 

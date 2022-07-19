@@ -6,6 +6,24 @@ class Carrito {
         this.total = 0;
     }
 
+    guardarCarrito() {
+        localStorage.removeItem("carrito");
+        localStorage.setItem("carrito", JSON.stringify(this));
+    }
+
+    recuperarCarrito() {
+        // Recupero del localStorage y lo parseo
+        let carritoJSON = JSON.parse(localStorage.getItem("carrito"));
+
+        // Para que recupere su estado como clase y no objeto
+        Object.assign(this, carritoJSON);
+
+        // Para que los cosplays recuperen su estado de clase y pueda acceder a sus métodos. No aplico el mismo método de arriba porque, de alguna manera, los cosplays quedan setteados de una manera que falla todo. Por lo cual, busco según id en el arreglo de cosplays global.
+        for (let i = 0; i < this.cosplays.length; i++) {
+            this.cosplays[i] = searchCosplayById(cosplays, this.cosplays[i].id);
+        }
+    }
+
     getCantidad(cosplay) {
         let indiceCosplay = this.cosplays.indexOf(cosplay);
         return this.cantidades[indiceCosplay];
