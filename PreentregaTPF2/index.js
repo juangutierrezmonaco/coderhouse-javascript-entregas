@@ -173,7 +173,7 @@ buscadorInput.addEventListener("keydown", (e) => {
 
     // Si se borra, se restaura el arreglo al original y se busca nuevamente (porque en la búsqueda modifico el arreglo). También aplica para el caso que no se ponga nada en la búsqueda, se restaura el arreglo. Luego de que se restaura se disparan los otros eventos para buscar.
     if (e.key = "\r") {     
-        cosplays = cosplaysBackup;
+        cosplays = getCosplaysFromDB();
     }
 });
 
