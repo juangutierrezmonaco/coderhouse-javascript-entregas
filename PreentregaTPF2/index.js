@@ -24,9 +24,9 @@ function main () {
     // Paso código de descuento si existía de antes
     let codigoTexto = localStorage.getItem("inputCodigo") == null ? "" : localStorage.getItem("inputCodigo");
     actualizarCarrito(codigoTexto);
-}
+} 
 
-main();
+main(); 
 
 /**************************************************************/
 /*                          GALERIA                           */
